@@ -1,49 +1,44 @@
-from channels.generic.websocket import AsyncWebsocketConsumer
 import json
+from channels.generic.websocket import AsyncWebsocketConsumer
+
 
 class ChatRoomConsumer(AsyncWebsocketConsumer):
-    """define a class for the chat room"""
-    
-    # first of all we must be connected to a chat room
     async def connect(self):
-        #fetch the room name
         self.room_name = self.scope['url_route']['kwargs']['room_name']
-        #then fetch the group of this chat
-        self.room_group_name = '%s_chat' % self.room_name
+        self.room_group_name = 'chat_%s' % self.room_name
 
-        # now let's create the group
         await self.channel_layer.group_add(
             self.room_group_name,
             self.channel_name
         )
 
-        # create a wait for accepting the connection
         await self.accept()
 
-        # create an await for sendding
-        await self.channel_layer.group_send(
-            self.room_group_name,
-            {   
-                # define a message
-                'type' : 'tester_message',
-                'tester' : 'hello world',
-            }
-        )
-    
-    #create a tester to test our message
-    async def tester_message(self, event):
-        tester = event['tester']
-
-        #let's send this message accross the group
-        await self.send(text_data=json.dumps({
-            'tester':tester,
-        }))
-
-    # create an async for disconnecting
     async def disconnect(self, close_code):
         await self.channel_layer.group_discard(
-            
-            # define the group and channel data
             self.room_group_name,
             self.channel_name
         )
+
+    async def receive(self, text_data):
+        text_data_json = json.loads(text_data)
+        message = text_data_json['message']
+        username = text_data_json['username']
+
+        await self.channel_layer.group_send(
+            self.room_group_name,
+            {
+                'type': 'chatroom_message',
+                'message': message,
+                'username': username,
+            }
+        )
+
+    async def chatroom_message(self, event):
+        message = event['message']
+        username = event['username']
+
+        await self.send(text_data=json.dumps({
+            'message': message,
+            'username': username,
+        }))
