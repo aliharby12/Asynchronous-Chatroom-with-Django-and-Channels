@@ -9,4 +9,4 @@ def index(request):
 
 def room(request, room_name):
     """create a view to render a single chatroom"""
-    return render(request, 'chat/room.html', {'room_name' : room_name})
+    return render(request, 'chat/chatroom.html', {'room_name' : room_name})

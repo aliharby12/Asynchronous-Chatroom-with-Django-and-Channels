@@ -123,4 +123,11 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-ASGI_APPLICATION     = "project.routing.application"
+ASGI_APPLICATION = "project.routing.application"
+
+# alternative for redis server
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels.layers.InMemoryChannelLayer',
+    }
+}

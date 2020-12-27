@@ -17,13 +17,16 @@ class ChatRoomConsumer(AsyncWebsocketConsumer):
             self.channel_name
         )
 
+        # create a wait for accepting the connection
+        await self.accept()
+
         # create an await for sendding
-        await self.channel_layer_group_send(
+        await self.channel_layer.group_send(
             self.room_group_name,
             {   
                 # define a message
                 'type' : 'tester_message',
-                'tester' : 'welcome all'
+                'tester' : 'hello world',
             }
         )
     
@@ -33,7 +36,7 @@ class ChatRoomConsumer(AsyncWebsocketConsumer):
 
         #let's send this message accross the group
         await self.send(text_data=json.dumps({
-            'tester' : tester,
+            'tester':tester,
         }))
 
     # create an async for disconnecting
